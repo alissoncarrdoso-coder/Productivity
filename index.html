@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#020817"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Produtividade"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<title>Produtividade</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#020817;color:#e2e8f0;font-family:'DM Sans','Segoe UI',sans-serif}
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+:root{--accent:#F5A623;--green:#4ADE80;--red:#F87171;--blue:#60A5FA;--purple:#A78BFA}
+#app{max-width:480px;margin:0 auto;padding:0 0 60px;min-height:100vh;position:relative;
+  padding-top:env(safe-area-inset-top);padding-bottom:calc(env(safe-area-inset-bottom) + 60px)}
+.bg-mesh{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 60% at 20% -10%,#F5A62320,transparent),
+             radial-gradient(ellipse 60% 50% at 80% 100%,#60A5FA18,transparent)}
+.bg-dot{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(#ffffff06 1px,transparent 1px);background-size:28px 28px}
+header{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-start;padding:28px 18px 16px}
+.greeting{font-size:21px;font-weight:700;color:#f1f5f9;font-family:'DM Serif Display',serif}
+.datestr{font-size:11px;color:#64748b;margin-top:4px;letter-spacing:.3px}
+.streak-badge{background:linear-gradient(135deg,#f59e0b22,#f5a62344);border:1px solid #f5a62355;
+  color:var(--accent);font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px;white-space:nowrap}
+.progress-row{position:relative;z-index:1;display:flex;gap:6px;justify-content:center;padding:4px 14px 18px;flex-wrap:wrap}
+.progress-card{background:rgba(15,23,42,.8);backdrop-filter:blur(12px);border:1px solid #1e293b;
+  border-radius:14px;padding:14px 10px;display:flex;flex-direction:column;align-items:center}
+.week-chart{position:relative;z-index:1;margin:0 14px 18px;background:rgba(15,23,42,.8);
+  backdrop-filter:blur(12px);border:1px solid #1e293b;border-radius:14px;padding:14px}
+.tabs{position:relative;z-index:1;display:flex;gap:4px;padding:0 14px;margin-bottom:14px}
+.tab-btn{flex:1;padding:9px 4px;border-radius:11px;border:1px solid #1e293b;background:transparent;
+  color:#64748b;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.3px;transition:all .2s;font-family:inherit}
+.tab-btn.active{background:linear-gradient(135deg,#F5A62322,#60A5FA11);border:1px solid #F5A62355;color:#f1f5f9}
+.section{position:relative;z-index:1;margin:0 14px}
+.sec-title{font-size:10px;font-weight:700;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.row-between{display:flex;justify-content:space-between;align-items:center}
+.add-btn{background:#F5A62322;border:1px solid #F5A62355;color:var(--accent);font-size:10px;font-weight:700;
+  padding:5px 11px;border-radius:20px;cursor:pointer;letter-spacing:.5px;font-family:inherit;white-space:nowrap}
+.add-form{background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:12px;margin-bottom:12px;
+  display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.add-form input,.add-form select{background:#1e293b;border:1px solid #334155;border-radius:8px;
+  color:#e2e8f0;padding:8px 11px;font-size:13px;outline:none;font-family:inherit}
+.add-form input{flex:1;min-width:120px}
+.add-form input.emoji{flex:none;width:56px}
+.confirm-btn{background:linear-gradient(135deg,#F5A623,#F97316);border:none;border-radius:8px;
+  color:#000;font-weight:700;font-size:13px;padding:8px 14px;cursor:pointer;font-family:inherit}
+.task-row{display:flex;align-items:center;gap:9px;background:rgba(15,23,42,.85);border:1px solid #1e293b;
+  border-radius:11px;padding:11px 12px;margin-bottom:7px;transition:opacity .3s}
+.task-row.done{opacity:.5}
+.check-btn{width:22px;height:22px;border-radius:6px;border:1.5px solid #334155;background:transparent;
+  color:var(--green);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit}
+.check-btn.done{background:#4ADE8033;border-color:var(--green)}
+.del-btn{background:transparent;border:none;color:#475569;font-size:17px;cursor:pointer;line-height:1;padding:0 2px;flex-shrink:0}
+.task-title{flex:1;font-size:13px;color:#e2e8f0}
+.task-title.done{text-decoration:line-through;color:#64748b}
+.priority-dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0}
+.priority-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;flex-shrink:0}
+.habit-chips{display:flex;flex-wrap:wrap;gap:8px}
+.habit-chip{padding:7px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;
+  transition:all .25px;letter-spacing:.2px;font-family:inherit}
+.habit-row{display:flex;align-items:center;gap:11px;background:rgba(15,23,42,.85);border:1px solid #1e293b;
+  border-radius:13px;padding:13px;margin-bottom:9px}
+.habit-icon{font-size:22px;flex-shrink:0}
+.habit-info{flex:1;min-width:0}
+.habit-name{color:#f1f5f9;font-weight:600;font-size:14px}
+.progress-bar-wrap{display:flex;align-items:center;gap:6px;margin-top:5px}
+.progress-bar-bg{flex:1;height:4px;border-radius:2px;background:#1e293b;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:2px;transition:width .5s}
+.habit-days{display:flex;gap:3px;margin-top:6px}
+.habit-day{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#94a3b8}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.stat-card{background:#0f172a;border-radius:14px;padding:14px}
+.stat-val{font-size:24px;font-weight:800;font-family:'DM Serif Display',serif}
+.stat-label{font-size:12px;color:#94a3b8;margin-top:2px}
+.stat-unit{font-size:10px;color:#475569}
+.month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:16px}
+.month-day-label{font-size:8px;color:#475569;text-align:center;padding-bottom:2px}
+.month-day{aspect-ratio:1;border-radius:5px;display:flex;align-items:center;justify-content:center;
+  font-size:8px;font-weight:700;color:#0f172a;cursor:default}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.legend-item{display:flex;align-items:center;gap:4px}
+.legend-dot{width:10px;height:10px;border-radius:2px}
+.legend-label{font-size:10px;color:#64748b}
+.habit-month-row{margin-bottom:12px}
+.habit-month-header{display:flex;justify-content:space-between;margin-bottom:4px}
+.empty-msg{color:#475569;font-size:13px;text-align:center;padding:18px 0}
+svg circle{transition:stroke-dasharray .6s ease}
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="bg-dot"></div>
+<div id="app"></div>
+
+<script>
+const ACCENT='#F5A623',GREEN='#4ADE80',RED='#F87171',BLUE='#60A5FA',PURPLE='#A78BFA'
+const DAYS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']
+const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
+const COLORS=[GREEN,BLUE,PURPLE,ACCENT,RED]
+
+function pad2(n){return String(n).padStart(2,'0')}
+function todayKey(){return new Date().toISOString().slice(0,10)}
+function weekLabel(d){const dt=new Date(d);return dt.getDate()+'/'+(dt.getMonth()+1)}
+function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+let habits  = load('prd_habits',[
+  {id:'h1',name:'Exercício', icon:'🏋️',color:GREEN},
+  {id:'h2',name:'Leitura',   icon:'📚',color:BLUE},
+  {id:'h3',name:'Meditação', icon:'🧘',color:PURPLE},
+  {id:'h4',name:'Hidratação',icon:'💧',color:'#38BDF8'},
+])
+let tasks   = load('prd_tasks',[
+  {id:'t1',title:'Revisar metas da semana',priority:'alta', date:todayKey()},
+  {id:'t2',title:'Responder e-mails',      priority:'media',date:todayKey()},
+  {id:'t3',title:'Planejamento mensal',    priority:'alta', date:todayKey()},
+])
+let logs     = load('prd_logs',{})
+let taskLogs = load('prd_tlogs',{})
+let tab = 'hoje'
+let showAddTask=false, showAddHabit=false
+
+function saveAll(){save('prd_habits',habits);save('prd_tasks',tasks);save('prd_logs',logs);save('prd_tlogs',taskLogs)}
+
+// ── Calculations ──────────────────────────────────────────────
+function calcProgress(){
+  const today=todayKey()
+  const todayLog=logs[today]||{}
+  const doneTodayIds=taskLogs[today]||[]
+  const todayTasks=tasks.filter(t=>t.date===today||!t.date)
+  const habitPct=habits.length?Math.round(habits.filter(h=>todayLog[h.id]).length/habits.length*100):0
+  const taskPct=todayTasks.length?Math.round(doneTodayIds.filter(id=>todayTasks.find(t=>t.id===id)).length/todayTasks.length*100):0
+  const dailyPct=Math.round((habitPct+taskPct)/2)
+
+  const last7=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return d.toISOString().slice(0,10)})
+  const weekScores=last7.map(date=>{
+    const hL=logs[date]||{};const tL=taskLogs[date]||[]
+    const dT=tasks.filter(t=>t.date===date)
+    const hP=habits.length?habits.filter(h=>hL[h.id]).length/habits.length:0
+    const tP=dT.length?tL.filter(id=>dT.find(t=>t.id===id)).length/dT.length:0
+    return{date,score:Math.round((hP+tP)/2*100)}
+  })
+  const weekAvg=weekScores.length?Math.round(weekScores.reduce((a,s)=>a+s.score,0)/weekScores.length):0
+
+  const now=new Date()
+  const dIM=new Date(now.getFullYear(),now.getMonth()+1,0).getDate()
+  const tM=now.getFullYear()+'-'+pad2(now.getMonth()+1)
+  const mDays=Array.from({length:dIM},(_,i)=>{
+    const d=tM+'-'+pad2(i+1)
+    const hL=logs[d]||{};const tL=taskLogs[d]||[]
+    const dT=tasks.filter(t=>t.date===d)
+    const hP=habits.length?habits.filter(h=>hL[h.id]).length/habits.length*100:0
+    const tP=dT.length?tL.filter(id=>dT.find(t=>t.id===id)).length/dT.length*100:0
+    return{day:i+1,date:d,score:Math.round((hP+tP)/2)}
+  })
+  const activeDays=mDays.filter(d=>d.score>0).length
+  const monthAvg=activeDays?Math.round(mDays.filter(d=>d.score>0).reduce((a,d)=>a+d.score,0)/activeDays):0
+  const bestStreak=(()=>{let max=0,cur=0;mDays.forEach(d=>{if(d.score>=50){cur++;max=Math.max(max,cur)}else cur=0});return max})()
+  const streak=(()=>{
+    let s=0;const dk=todayKey()
+    for(let i=0;i<60;i++){
+      const d=new Date();d.setDate(d.getDate()-i)
+      const k=d.toISOString().slice(0,10)
+      const hP=habits.length?habits.filter(h=>(logs[k]||{})[h.id]).length/habits.length:0
+      if(hP>=0.5)s++;else if(i>0)break
+    }
+    return s
+  })()
+  return{today,todayLog,doneTodayIds,todayTasks,habitPct,taskPct,dailyPct,last7,weekScores,weekAvg,now,dIM,tM,mDays,activeDays,monthAvg,bestStreak,streak}
+}
+
+// ── SVG circle ────────────────────────────────────────────────
+function circleHTML(pct,size,color,label,sub){
+  size=size||82;color=color||ACCENT
+  const stroke=7,r=(size-stroke)/2,circ=2*Math.PI*r,dash=(pct/100)*circ
+  return`<div style="display:flex;flex-direction:column;align-items:center">
+    <div style="position:relative;width:${size}px;height:${size}px">
+      <svg width="${size}" height="${size}" style="transform:rotate(-90deg);position:absolute">
+        <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#1e293b" stroke-width="${stroke}"/>
+        <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}"
+          stroke-dasharray="${dash} ${circ}" stroke-linecap="round"/>
+      </svg>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+        <span style="font-size:${Math.round(size*.21)}px;font-weight:800;color:#f1f5f9;font-family:'DM Serif Display',serif;line-height:1">${pct}%</span>
+      </div>
+    </div>
+    ${label?`<div style="font-size:10px;color:#94a3b8;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:6px">${label}</div>`:''}
+    ${sub?`<div style="font-size:10px;color:#475569;margin-top:1px">${sub}</div>`:''}
+  </div>`
+}
+
+// ── RENDER ────────────────────────────────────────────────────
+function render(){
+  const p=calcProgress()
+  const h=new Date().getHours()
+  const greeting=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'
+  const now=p.now
+
+  // Header
+  let html=`
+  <header>
+    <div>
+      <div class="greeting">${greeting} 👋</div>
+      <div class="datestr" id="datestr">${DAYS[now.getDay()]}, ${now.getDate()} de ${MONTHS[now.getMonth()]}</div>
+    </div>
+    <div class="streak-badge">🔥 ${p.streak} dias</div>
+  </header>`
+
+  // Progress circles
+  html+=`<div class="progress-row">`
+  ;[
+    {pct:p.dailyPct,   color:ACCENT, label:'Hoje',    sub:'geral'},
+    {pct:p.habitPct,   color:GREEN,  label:'Hábitos', sub:'hoje'},
+    {pct:p.taskPct,    color:BLUE,   label:'Tarefas', sub:'hoje'},
+    {pct:p.weekAvg,    color:PURPLE, label:'Semana',  sub:'média'},
+  ].forEach(c=>{
+    html+=`<div class="progress-card">${circleHTML(c.pct,82,c.color,c.label,c.sub)}</div>`
+  })
+  html+=`</div>`
+
+  // Weekly bar chart
+  html+=`<div class="week-chart">
+    <div class="sec-title">Progresso Semanal</div>
+    <div style="display:flex;gap:5px;align-items:flex-end;height:60px">`
+  p.weekScores.forEach(({date,score})=>{
+    const isToday=date===p.today
+    const bg=isToday?`linear-gradient(to top,${ACCENT},${ACCENT}88)`:
+      score>=70?`linear-gradient(to top,${GREEN}99,${GREEN}44)`:
+      score>=40?`linear-gradient(to top,${BLUE}88,${BLUE}33)`:'#1e293b'
+    html+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+      <div style="font-size:9px;color:${score>0?ACCENT:'#475569'};font-weight:700">${score>0?score+'%':''}</div>
+      <div style="width:100%;border-radius:4px;height:${Math.max(4,score*.52)}px;background:${bg}"></div>
+      <div style="font-size:9px;color:${isToday?'#f1f5f9':'#64748b'};font-weight:${isToday?700:400}">${weekLabel(date)}</div>
+    </div>`
+  })
+  html+=`</div></div>`
+
+  // Tabs
+  html+=`<div class="tabs">`
+  ;[['hoje','📋 Hoje'],['habitos','🔄 Hábitos'],['relatorio','📊 Mês']].forEach(([k,l])=>{
+    html+=`<button class="tab-btn${tab===k?' active':''}" onclick="setTab('${k}')">${l}</button>`
+  })
+  html+=`</div>`
+
+  // ── TAB HOJE ──
+  if(tab==='hoje'){
+    html+=`<div class="section">
+      <div class="sec-title row-between">
+        <span>Tarefas de Hoje</span>
+        <button class="add-btn" onclick="toggleAddTask()">+ Adicionar</button>
+      </div>`
+    if(showAddTask){
+      html+=`<div class="add-form">
+        <input id="newTaskTitle" placeholder="Título da tarefa..." onkeydown="if(event.key==='Enter')addTask()"
+          style="flex:1;min-width:120px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#e2e8f0;padding:8px 11px;font-size:13px;outline:none;font-family:inherit"/>
+        <select id="newTaskPrio" style="background:#1e293b;border:1px solid #334155;border-radius:8px;color:#e2e8f0;padding:8px 9px;font-size:12px;outline:none;font-family:inherit">
+          <option value="alta">🔴 Alta</option>
+          <option value="media" selected>🟡 Média</option>
+          <option value="baixa">🟢 Baixa</option>
+        </select>
+        <button class="confirm-btn" onclick="addTask()">✓</button>
+      </div>`
+    }
+    if(p.todayTasks.length===0)html+=`<div class="empty-msg">Nenhuma tarefa. Adicione uma! 🎯</div>`
+    p.todayTasks.forEach(task=>{
+      const done=p.doneTodayIds.includes(task.id)
+      const pColor=task.priority==='alta'?RED:task.priority==='media'?ACCENT:GREEN
+      html+=`<div class="task-row${done?' done':''}">
+        <button class="check-btn${done?' done':''}" onclick="toggleTask('${task.id}')">${done?'✓':''}</button>
+        <span class="task-title${done?' done':''}">${task.title}</span>
+        <span class="priority-dot" style="background:${pColor}"></span>
+        <span class="priority-tag" style="background:${pColor}22;color:${pColor}">${task.priority}</span>
+        <button class="del-btn" onclick="deleteTask('${task.id}')">×</button>
+      </div>`
+    })
+    html+=`<div class="sec-title" style="margin-top:22px">Hábitos de Hoje</div>
+    <div class="habit-chips">`
+    habits.forEach(h=>{
+      const done=!!(p.todayLog[h.id])
+      html+=`<button class="habit-chip" onclick="toggleHabit('${h.id}')"
+        style="background:${done?h.color+'33':'#0f172a'};border:1.5px solid ${done?h.color:'#334155'};color:${done?h.color:'#94a3b8'};box-shadow:${done?'0 0 10px '+h.color+'44':'none'}">
+        ${h.icon} ${h.name} ${done?'✓':''}
+      </button>`
+    })
+    html+=`</div></div>`
+  }
+
+  // ── TAB HÁBITOS ──
+  if(tab==='habitos'){
+    html+=`<div class="section">
+      <div class="sec-title row-between">
+        <span>Gerenciar Hábitos</span>
+        <button class="add-btn" onclick="toggleAddHabit()">+ Novo</button>
+      </div>`
+    if(showAddHabit){
+      html+=`<div class="add-form">
+        <input id="newHabitName" placeholder="Nome do hábito..." onkeydown="if(event.key==='Enter')addHabit()"
+          style="flex:1;min-width:120px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#e2e8f0;padding:8px 11px;font-size:13px;outline:none;font-family:inherit"/>
+        <input id="newHabitIcon" placeholder="Emoji" maxlength="4"
+          style="width:56px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#e2e8f0;padding:8px 11px;font-size:13px;outline:none;font-family:inherit"/>
+        <button class="confirm-btn" onclick="addHabit()">✓</button>
+      </div>`
+    }
+    habits.forEach(h=>{
+      const streak7=p.last7.filter(d=>(logs[d]||{})[h.id]).length
+      const pct7=Math.round(streak7/7*100)
+      const done=!!(p.todayLog[h.id])
+      html+=`<div class="habit-row">
+        <div class="habit-icon">${h.icon}</div>
+        <div class="habit-info">
+          <div class="habit-name">${h.name}</div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct7}%;background:${h.color}"></div></div>
+            <span style="font-size:10px;color:${h.color};font-weight:700">${pct7}%</span>
+          </div>
+          <div class="habit-days">`
+      p.last7.forEach(d=>{
+        const on=(logs[d]||{})[h.id]
+        html+=`<div class="habit-day" style="background:${on?h.color:'#1e293b'};border:1px solid ${on?h.color:'#334155'}">${weekLabel(d).split('/')[0]}</div>`
+      })
+      html+=`</div></div>
+        <button class="check-btn${done?' done':''}" onclick="toggleHabit('${h.id}')">${done?'✓':''}</button>
+        <button class="del-btn" onclick="deleteHabit('${h.id}')">×</button>
+      </div>`
+    })
+    html+=`</div>`
+  }
+
+  // ── TAB RELATÓRIO ──
+  if(tab==='relatorio'){
+    html+=`<div class="section">
+      <div class="sec-title">${MONTHS[now.getMonth()]} ${now.getFullYear()}</div>
+      <div class="stat-grid">`
+    ;[
+      {label:'Dias ativos',     value:p.activeDays,    unit:'dias',         color:GREEN},
+      {label:'Média geral',     value:p.monthAvg+'%',  unit:'este mês',     color:ACCENT},
+      {label:'Melhor sequência',value:p.bestStreak+'d',unit:'seguidos',     color:PURPLE},
+      {label:'Hábitos',         value:habits.length,   unit:'cadastrados',  color:BLUE},
+    ].forEach(s=>{
+      html+=`<div class="stat-card" style="border:1px solid ${s.color}33">
+        <div class="stat-val" style="color:${s.color}">${s.value}</div>
+        <div class="stat-label">${s.label}</div>
+        <div class="stat-unit">${s.unit}</div>
+      </div>`
+    })
+    html+=`</div><div class="sec-title">Mapa do Mês</div><div class="month-grid">`
+    DAYS.forEach(d=>{ html+=`<div class="month-day-label">${d}</div>` })
+    const firstDow=new Date(now.getFullYear(),now.getMonth(),1).getDay()
+    for(let i=0;i<firstDow;i++) html+=`<div></div>`
+    p.mDays.forEach(({day,date,score})=>{
+      const fut=date>p.today
+      const bg=fut?'#0f172a':score>=80?GREEN:score>=50?ACCENT:score>=20?BLUE+'99':score>0?RED+'88':'#1e293b'
+      const txtColor=fut?'#334155':'#0f172a'
+      html+=`<div class="month-day" title="${day}: ${score}%"
+        style="background:${bg};color:${txtColor};opacity:${fut?.3:1};border:${date===p.today?'2px solid '+ACCENT:'none'}">${day}</div>`
+    })
+    html+=`</div><div class="legend">`
+    ;[[GREEN,'≥80%'],[ACCENT,'50–79%'],[BLUE+'99','20–49%'],[RED+'88','<20%'],['#1e293b','Sem dados']].forEach(([c,l])=>{
+      html+=`<div class="legend-item"><div class="legend-dot" style="background:${c}"></div><span class="legend-label">${l}</span></div>`
+    })
+    html+=`</div><div class="sec-title">Hábitos no Mês</div>`
+    habits.forEach(h=>{
+      const completed=p.mDays.filter(({date})=>(logs[date]||{})[h.id]).length
+      const pct=Math.round(completed/p.dIM*100)
+      html+=`<div class="habit-month-row">
+        <div class="habit-month-header">
+          <span style="font-size:13px;color:#cbd5e1">${h.icon} ${h.name}</span>
+          <span style="font-size:11px;color:${h.color};font-weight:700">${completed}/${p.dIM}d · ${pct}%</span>
+        </div>
+        <div style="height:5px;border-radius:3px;background:#1e293b;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:linear-gradient(to right,${h.color}88,${h.color});border-radius:3px;transition:width .6s"></div>
+        </div>
+      </div>`
+    })
+    html+=`</div>`
+  }
+
+  document.getElementById('app').innerHTML=html
+}
+
+// ── Actions ───────────────────────────────────────────────────
+function setTab(t){tab=t;showAddTask=false;showAddHabit=false;render()}
+function toggleAddTask(){showAddTask=!showAddTask;render();if(showAddTask)setTimeout(()=>document.getElementById('newTaskTitle')&&document.getElementById('newTaskTitle').focus(),50)}
+function toggleAddHabit(){showAddHabit=!showAddHabit;render();if(showAddHabit)setTimeout(()=>document.getElementById('newHabitName')&&document.getElementById('newHabitName').focus(),50)}
+
+function addTask(){
+  const inp=document.getElementById('newTaskTitle')
+  const sel=document.getElementById('newTaskPrio')
+  if(!inp||!inp.value.trim())return
+  tasks.push({id:'t'+Date.now(),title:inp.value.trim(),priority:sel?sel.value:'media',date:todayKey()})
+  saveAll();showAddTask=false;render()
+}
+function deleteTask(id){tasks=tasks.filter(t=>t.id!==id);saveAll();render()}
+function toggleTask(id){
+  const today=todayKey()
+  const arr=taskLogs[today]||[]
+  taskLogs[today]=arr.includes(id)?arr.filter(x=>x!==id):[...arr,id]
+  saveAll();render()
+}
+function toggleHabit(id){
+  const today=todayKey()
+  const log=logs[today]||{}
+  logs[today]={...log,[id]:!log[id]}
+  saveAll();render()
+}
+function addHabit(){
+  const inp=document.getElementById('newHabitName')
+  const ico=document.getElementById('newHabitIcon')
+  if(!inp||!inp.value.trim())return
+  habits.push({id:'h'+Date.now(),name:inp.value.trim(),icon:(ico&&ico.value)||'⭐',color:COLORS[habits.length%COLORS.length]})
+  saveAll();showAddHabit=false;render()
+}
+function deleteHabit(id){habits=habits.filter(h=>h.id!==id);saveAll();render()}
+
+// ── Clock ─────────────────────────────────────────────────────
+setInterval(()=>{
+  const el=document.getElementById('datestr')
+  const now=new Date()
+  if(el) el.textContent=`${DAYS[now.getDay()]}, ${now.getDate()} de ${MONTHS[now.getMonth()]} · ${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`
+},1000)
+
+// ── PWA ───────────────────────────────────────────────────────
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))
+}
+
+render()
+</script>
+
+</body>
+</html>
